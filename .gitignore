@@ -1,0 +1,8 @@
+logs/
+node_modules/
+secrets/
+eslint.config.mjs
+.vscode/
+.idea/
+*.iml
+.prettierrc
