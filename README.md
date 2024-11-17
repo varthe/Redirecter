@@ -69,6 +69,9 @@ Define your Radarr and Sonarr instances in this section. You can name the instan
 - **`root_folder`** (Required): The path to the root folder for the instance, as configured in its settings.
 - **`quality_profile_id`** (Optional): The ID of the quality profile. IDs start at 1 and increment as you move down the list in the instance's settings dropdown. If not provided, the default profile set in the instance's settings will be used.
 - **`approve`** (Optional): A flag to automatically approve the request. Recommended for smoother automation.
+  
+![arrs](https://github.com/user-attachments/assets/a7a60d91-0f24-42a9-bbe1-ea4f1c945e6a)
+![quality_profiles](https://github.com/user-attachments/assets/ba3138ba-736e-4d7d-ac69-ec454656855e)
 
 ### Filters
 
