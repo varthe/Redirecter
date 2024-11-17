@@ -111,6 +111,8 @@ filters:
   - media_type: movie
     conditions:
       keywords: anime # Match if keyword "anime" is present
+      requestedBy_username: varthe # Match if requested by "varthe"
+      # requestedBy_email: ""
     apply: radarr_anime # Send request to "radarr_anime"
   - media_type: movie
     conditions:
