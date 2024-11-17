@@ -1,6 +1,6 @@
 
 # Redirecterr
-
+Filter and redirect Overseerr requests based on requester, keywords, age ratings, and more. Supports routing to multiple instances simultaneously.
 ## Getting Started
 
 ### Docker Compose
