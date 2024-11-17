@@ -6,3 +6,4 @@ eslint.config.mjs
 .idea/
 *.iml
 .prettierrc
+config.yaml
