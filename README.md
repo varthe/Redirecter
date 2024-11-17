@@ -133,3 +133,6 @@ filters:
         - 16
     apply: sonarr # Send request to "sonarr"
 ```
+### Note
+
+Redirecterr processes filters sequentially and will apply **the first matching filter** it encounters. Make sure to order your filters appropriately to get the desired behavior.
