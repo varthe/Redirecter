@@ -65,9 +65,9 @@ The configuration for Redirecterr is defined in `config.yaml`. Below is a breakd
 
 Define your Radarr and Sonarr instances in this section. You can name the instances as needed.
 
-- **`server_id`** (Required): The ID of the instance as shown in **Settings -> Services** in Overseerr. IDs start at 0 and increment sequentially.
+- **`server_id`** (Required): The ID of the instance as shown in **Settings -> Services** in Overseerr. IDs start at 0 and increment sequentially from left to right (see image below).
 - **`root_folder`** (Required): The path to the root folder for the instance, as configured in its settings.
-- **`quality_profile_id`** (Optional): The ID of the quality profile. IDs start at 1 and increment as you move down the list in the instance's settings dropdown. If not provided, the default profile set in the instance's settings will be used.
+- **`quality_profile_id`** (Optional): The ID of the quality profile. IDs start at 1 and increment as you move down the list in the instance's settings dropdown (see image below). If not provided, the default profile set in the instance's settings will be used.
 - **`approve`** (Optional): A flag to automatically approve the request. Recommended for smoother automation.
   
 ![arrs](https://github.com/user-attachments/assets/a7a60d91-0f24-42a9-bbe1-ea4f1c945e6a)
