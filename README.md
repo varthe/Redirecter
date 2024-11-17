@@ -75,7 +75,7 @@ Define your Radarr and Sonarr instances in this section. You can name the instan
 Define your request filters in this section.
 
 - **`media_type`**: Specifies the type of media, either `"movie"` or `"tv"`.
-- **`conditions`**: A set of fields and values used to filter requests. Refer to `testdata.js` for examples of request objects. Each field within `conditions` can be:
+- **`conditions`**: A set of fields and values used to filter requests. Refer to [testData.js](https://github.com/varthe/Redirecterr/blob/main/testData.js) for examples of request objects. Each field within `conditions` can be:
     - A **single value**: Matches if the value is present in the request.
     - A **list of values**: Matches if any value in the list is present in the request.
     - An **`exclude`** object: Used to exclude specific values. The `exclude`` object can contain either a single value or a list of values. The filter will match if none of the specified values are present in the request.
