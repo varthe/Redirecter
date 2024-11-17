@@ -81,6 +81,8 @@ Define your request filters in this section.
     - An **`exclude`** object: Used to exclude specific values. The `exclude`` object can contain either a single value or a list of values. The filter will match if none of the specified values are present in the request.
 
 - **`apply`**: A list of instance names (defined in the **Instances** section) to which the request will be sent.
+  
+Redirecterr processes filters sequentially and will apply the first matching filter it encounters. Make sure to order your filters appropriately to get the desired behavior.
 
 ### Sample `config.yaml`
 
@@ -133,6 +135,3 @@ filters:
         - 16
     apply: sonarr # Send request to "sonarr"
 ```
-### Note
-
-Redirecterr processes filters sequentially and will apply **the first matching filter** it encounters. Make sure to order your filters appropriately to get the desired behavior.
