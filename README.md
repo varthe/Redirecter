@@ -24,7 +24,7 @@ services:
 
 ### Overseerr webhook
 
-In order for Redirecterr to work you need to disable automatic request approval for your users (they will be approved by Redirecterr, don't worry).
+In order for Redirecterr to work you need to disable automatic request approval for your users.
 
 Then, navigate to **Settings -> Notifications -> Webhook** and configure the following:
 
