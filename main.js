@@ -4,7 +4,7 @@ const logger = require("./logger")
 const { loadConfig } = require("./configBuilder")
 
 // Load configuration
-const config = loadConfig()
+const config = process.env.NODE_ENV !== "test" ? loadConfig() : ""
 const app = express()
 app.use(express.json())
 
@@ -29,12 +29,27 @@ const isObjectArray = (value) => Array.isArray(value) && value.some((item) => is
 
 const formatLogEntry = (entry) => {
     if (Array.isArray(entry)) {
-        return entry.map((item) => (isObject(item) ? JSON.stringify(item) : item)).join(", ")
+        return entry
+            .map((item) => (isObject(item) && item.name ? item.name : isObject(item) ? JSON.stringify(item) : item))
+            .join(", ")
     }
     if (isObject(entry)) {
-        return JSON.stringify(entry, null, 2)
+        if (entry.name) {
+            return entry.name
+        }
+        return Object.entries(entry)
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? `[${value.join(", ")}]` : value}`)
+            .join(", ")
     }
     return entry
+}
+
+const buildLogMessage = (message, details = {}) => {
+    const formattedDetails = Object.entries(details)
+        .map(([key, value]) => `${key}: ${formatLogEntry(value)}`)
+        .join("\n")
+
+    return `${message}\n${formattedDetails}`
 }
 
 // Main functions
@@ -85,12 +100,13 @@ const findMatchingInstances = (webhook, data, filters) => {
                 }
 
                 if (logger.isLevelEnabled("debug")) {
-                    logger.debug({
-                        message: "Performing filter check",
-                        field: key,
-                        filterValue: value.exclude ? `(exclude) ${formatLogEntry(value)}` : formatLogEntry(value),
-                        requestValue: formatLogEntry(requestValue),
-                    })
+                    logger.debug(
+                        buildLogMessage("Filter check:", {
+                            Field: key,
+                            "Filter value": value,
+                            "Request value": requestValue,
+                        })
+                    )
                 }
 
                 if (value.exclude ? matchValue(value.exclude, requestValue) : !matchValue(value, requestValue)) {
@@ -105,12 +121,8 @@ const findMatchingInstances = (webhook, data, filters) => {
             logger.warn("No matching filter found for the current webhook")
             return null
         }
-        logger.info({
-            message: "Matching filter found",
-            mediaType: matchingFilter.media_type,
-            conditions: matchingFilter.conditions,
-            apply: matchingFilter.apply,
-        })
+
+        logger.info(`Found matching filter at index ${filters.indexOf(matchingFilter)}`)
         return matchingFilter.apply
     } catch (error) {
         logger.error(`Error finding matching filter: ${error.message}`)
@@ -135,6 +147,9 @@ const getPostData = (requestData) => {
     return postData
 }
 
+const applyConfig = async (requestId, postData) => await axiosInstance.put(`/api/v1/request/${requestId}`, postData)
+const approveRequest = async (requestId) => await axiosInstance.post(`/api/v1/request/${requestId}/approve`)
+
 const sendToInstances = async (instances, requestId, data) => {
     const instancesArray = Array.isArray(instances) ? instances : [instances]
     for (const item of instancesArray) {
@@ -155,11 +170,11 @@ const sendToInstances = async (instances, requestId, data) => {
                 postData: postData,
             })
 
-            await axiosInstance.put(`/api/v1/request/${requestId}`, postData)
+            await applyConfig(requestId, postData)
             logger.info(`Configuration applied for request ID ${requestId} on instance "${item}"`)
 
             if (instance.approve) {
-                await axiosInstance.post(`/api/v1/request/${requestId}/approve`)
+                await approveRequest(requestId)
                 logger.info(`Request ID ${requestId} approved for instance "${item}"`)
             }
         } catch (error) {
@@ -170,14 +185,20 @@ const sendToInstances = async (instances, requestId, data) => {
 
 // Webhook route
 app.post("/webhook", async (req, res) => {
-    const { notification_type, media, request } = req.body
-
-    if (notification_type === "TEST_NOTIFICATION") {
-        logger.info("Test notification received")
-        return res.status(200).send()
-    }
-
     try {
+        const { notification_type, media, request } = req.body
+
+        if (notification_type === "TEST_NOTIFICATION") {
+            logger.info("Test notification received")
+            return res.status(200).send()
+        }
+
+        if (media.media_type === "music") {
+            logger.info("Received music request. Approving")
+            await approveRequest(request.request_id)
+            return res.status(200).send()
+        }
+
         const { data } = await axiosInstance.get(`/api/v1/${media.media_type}/${media.tmdbId}`)
         logger.info(
             `Received request ID ${request.request_id} for ${media.media_type} "${data?.originalTitle || data?.originalName}"`
@@ -195,8 +216,8 @@ app.post("/webhook", async (req, res) => {
 
 // Server initialization
 const PORT = process.env.PORT || 8481
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)
 })
 
-module.exports = { findMatchingInstances }
+module.exports = { findMatchingInstances, server }

@@ -1,4 +1,4 @@
-const { findMatchingInstances } = require("./main")
+const { findMatchingInstances, server } = require("./main")
 const { movieWebhook, showWebhook, movieGladiator2Data, showArcaneData } = require("./testData")
 const assert = require("assert")
 
@@ -46,6 +46,13 @@ const sampleFilters = [
         apply: "sonarr2",
     },
 ]
+
+afterAll((done) => {
+    server.close(() => {
+        console.log("Server closed after tests")
+        done()
+    })
+})
 
 describe("Filter Matching Tests", () => {
     it("Match movie with genre and exclude keyword filter", () => {
