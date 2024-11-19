@@ -37,6 +37,14 @@ const formatLogEntry = (entry) => {
     return entry
 }
 
+const buildLogMessage = (message, details = {}) => {
+    const formattedDetails = Object.entries(details)
+        .map(([key, value]) => `  ${key}: ${formatLogEntry(value)}`)
+        .join("\n")
+
+    return `${message}\n${formattedDetails}`
+}
+
 // Main functions
 const matchValue = (filterValue, dataValue) => {
     const arrayValues = normalizeToArray(filterValue)
@@ -85,12 +93,13 @@ const findMatchingInstances = (webhook, data, filters) => {
                 }
 
                 if (logger.isLevelEnabled("debug")) {
-                    logger.debug({
-                        message: "Performing filter check",
-                        field: key,
-                        filterValue: value.exclude ? `(exclude) ${formatLogEntry(value)}` : formatLogEntry(value),
-                        requestValue: formatLogEntry(requestValue),
-                    })
+                    logger.debug(
+                        buildLogMessage("Filter check:", {
+                            Field: key,
+                            "Filter value": formatLogEntry(value),
+                            "Request value": requestValue,
+                        })
+                    )
                 }
 
                 if (value.exclude ? matchValue(value.exclude, requestValue) : !matchValue(value, requestValue)) {
@@ -105,12 +114,16 @@ const findMatchingInstances = (webhook, data, filters) => {
             logger.warn("No matching filter found for the current webhook")
             return null
         }
-        logger.info({
-            message: "Matching filter found",
-            mediaType: matchingFilter.media_type,
-            conditions: matchingFilter.conditions,
-            apply: matchingFilter.apply,
-        })
+
+        let msg = "Matching filter found"
+        if (logger.isLevelEnabled("debug")) {
+            msg = buildLogMessage(`${msg}:`, {
+                "Media Type": matchingFilter.media_type,
+                Conditions: matchingFilter.conditions || "",
+                Apply: matchingFilter.apply,
+            })
+        }
+        logger.info(msg)
         return matchingFilter.apply
     } catch (error) {
         logger.error(`Error finding matching filter: ${error.message}`)
