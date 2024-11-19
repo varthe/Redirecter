@@ -11,12 +11,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.13.0",
     "globals": "^15.11.0",
     "jest": "^29.7.0",
     "prettier": "^3.3.3"
   },
   "scripts": {
-    "test": "jest"
+    "test": "cross-env NODE_ENV=test jest"
   }
 }

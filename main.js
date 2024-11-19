@@ -4,7 +4,7 @@ const logger = require("./logger")
 const { loadConfig } = require("./configBuilder")
 
 // Load configuration
-const config = loadConfig()
+const config = process.env.NODE_ENV !== "test" ? loadConfig() : ""
 const app = express()
 app.use(express.json())
 
@@ -29,17 +29,24 @@ const isObjectArray = (value) => Array.isArray(value) && value.some((item) => is
 
 const formatLogEntry = (entry) => {
     if (Array.isArray(entry)) {
-        return entry.map((item) => (isObject(item) ? JSON.stringify(item) : item)).join(", ")
+        return entry
+            .map((item) => (isObject(item) && item.name ? item.name : isObject(item) ? JSON.stringify(item) : item))
+            .join(", ")
     }
     if (isObject(entry)) {
-        return JSON.stringify(entry, null, 2)
+        if (entry.name) {
+            return entry.name
+        }
+        return Object.entries(entry)
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? `[${value.join(", ")}]` : value}`)
+            .join(", ")
     }
     return entry
 }
 
 const buildLogMessage = (message, details = {}) => {
     const formattedDetails = Object.entries(details)
-        .map(([key, value]) => `  ${key}: ${formatLogEntry(value)}`)
+        .map(([key, value]) => `${key}: ${formatLogEntry(value)}`)
         .join("\n")
 
     return `${message}\n${formattedDetails}`
@@ -96,7 +103,7 @@ const findMatchingInstances = (webhook, data, filters) => {
                     logger.debug(
                         buildLogMessage("Filter check:", {
                             Field: key,
-                            "Filter value": formatLogEntry(value),
+                            "Filter value": value,
                             "Request value": requestValue,
                         })
                     )
@@ -115,15 +122,7 @@ const findMatchingInstances = (webhook, data, filters) => {
             return null
         }
 
-        let msg = "Matching filter found"
-        if (logger.isLevelEnabled("debug")) {
-            msg = buildLogMessage(`${msg}:`, {
-                "Media Type": matchingFilter.media_type,
-                Conditions: matchingFilter.conditions || "",
-                Apply: matchingFilter.apply,
-            })
-        }
-        logger.info(msg)
+        logger.info(`Found matching filter at index ${filters.indexOf(matchingFilter)}`)
         return matchingFilter.apply
     } catch (error) {
         logger.error(`Error finding matching filter: ${error.message}`)
