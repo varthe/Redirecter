@@ -147,6 +147,9 @@ const getPostData = (requestData) => {
     return postData
 }
 
+const applyConfig = async (requestId, postData) => await axiosInstance.put(`/api/v1/request/${requestId}`, postData)
+const approveRequest = async (requestId) => await axiosInstance.post(`/api/v1/request/${requestId}/approve`)
+
 const sendToInstances = async (instances, requestId, data) => {
     const instancesArray = Array.isArray(instances) ? instances : [instances]
     for (const item of instancesArray) {
@@ -167,11 +170,11 @@ const sendToInstances = async (instances, requestId, data) => {
                 postData: postData,
             })
 
-            await axiosInstance.put(`/api/v1/request/${requestId}`, postData)
+            await applyConfig(requestId, postData)
             logger.info(`Configuration applied for request ID ${requestId} on instance "${item}"`)
 
             if (instance.approve) {
-                await axiosInstance.post(`/api/v1/request/${requestId}/approve`)
+                await approveRequest(requestId)
                 logger.info(`Request ID ${requestId} approved for instance "${item}"`)
             }
         } catch (error) {
@@ -182,14 +185,20 @@ const sendToInstances = async (instances, requestId, data) => {
 
 // Webhook route
 app.post("/webhook", async (req, res) => {
-    const { notification_type, media, request } = req.body
-
-    if (notification_type === "TEST_NOTIFICATION") {
-        logger.info("Test notification received")
-        return res.status(200).send()
-    }
-
     try {
+        const { notification_type, media, request } = req.body
+
+        if (notification_type === "TEST_NOTIFICATION") {
+            logger.info("Test notification received")
+            return res.status(200).send()
+        }
+
+        if (media.media_type === "music") {
+            logger.info("Received music request. Approving")
+            await approveRequest(request.request_id)
+            return res.status(200).send()
+        }
+
         const { data } = await axiosInstance.get(`/api/v1/${media.media_type}/${media.tmdbId}`)
         logger.info(
             `Received request ID ${request.request_id} for ${media.media_type} "${data?.originalTitle || data?.originalName}"`
