@@ -207,8 +207,8 @@ app.post("/webhook", async (req, res) => {
 
 // Server initialization
 const PORT = process.env.PORT || 8481
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)
 })
 
-module.exports = { findMatchingInstances }
+module.exports = { findMatchingInstances, server }
