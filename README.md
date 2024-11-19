@@ -1,6 +1,6 @@
 
 # Redirecterr
-Filter and redirect Overseerr requests based on requester, keywords, age ratings, and more. Supports routing to multiple instances simultaneously.
+Filter and redirect Overseerr/Jellyseerr requests based on requester, keywords, age ratings, and more. Supports routing to multiple instances simultaneously.
 ## Getting Started
 
 ### Docker Compose
@@ -22,11 +22,11 @@ services:
       - LOG_LEVEL=info
 ```
 
-### Overseerr webhook
+### Webhook setup
 
 In order for Redirecterr to work you need to disable automatic request approval for your users.
 
-Then, navigate to **Settings -> Notifications -> Webhook** and configure the following:
+Then, in your seerr navigate to **Settings -> Notifications -> Webhook** and configure the following:
 
 - **Enable Agent**: Enabled
 - **Webhook URL**: `http://redirecterr:8481/webhook`
