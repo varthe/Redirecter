@@ -173,7 +173,7 @@ const sendToInstances = async (instances, requestId, data) => {
             await applyConfig(requestId, postData)
             logger.info(`Configuration applied for request ID ${requestId} on instance "${item}"`)
 
-            if (instance.approve) {
+            if (instance.approve ?? true) {
                 await approveRequest(requestId)
                 logger.info(`Request ID ${requestId} approved for instance "${item}"`)
             }
