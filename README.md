@@ -107,7 +107,7 @@ instances:
     server_id: 2
     root_folder: "/mnt/plex/Movies - Anime"
     quality_profile_id: 2 # Optional
-    approve: false
+    approve: false # Optional
   sonarr: # Custom instance name
     server_id: 0
     root_folder: "/mnt/plex/Shows"
