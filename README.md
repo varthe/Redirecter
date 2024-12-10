@@ -100,20 +100,17 @@ instances:
   radarr: # Custom instance name
     server_id: 0
     root_folder: "/mnt/plex/Movies"
-    approve: true
   radarr4k: # Custom instance name
     server_id: 1
     root_folder: "/mnt/plex/Movies - 4K"
-    approve: true
   radarr_anime: # Custom instance name
     server_id: 2
     root_folder: "/mnt/plex/Movies - Anime"
     quality_profile_id: 2 # Optional
-    approve: true
+    approve: false
   sonarr: # Custom instance name
     server_id: 0
     root_folder: "/mnt/plex/Shows"
-    approve: true
 
 filters:
   - media_type: movie
