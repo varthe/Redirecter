@@ -67,11 +67,14 @@ Define your Radarr and Sonarr instances in this section. You can name the instan
 
 - **`server_id`** (Required): The ID of the instance as shown in **Settings -> Services** in Overseerr. IDs start at 0 and increment sequentially from left to right (see image below).
 - **`root_folder`** (Required): The path to the root folder for the instance, as configured in its settings.
-- **`quality_profile_id`** (Optional): The ID of the quality profile. IDs start at 1 and increment as you move down the list in the instance's settings dropdown (see image below). If not provided, the default profile set in the instance's settings will be used.
-- **`approve`** (Optional): A flag to automatically approve the request. Recommended for smoother automation.
+- **`quality_profile_id`** (Optional): Overrides the default quality profile set in Overseerr. If not provided, the default profile will be used. To find the profile ID, open your browser and use the following URL, replacing `<url>` with your arr instance's URL and `<api-key>` with its API key:
+  ```
+  http://<url>/api/v3/qualityProfile?apiKey=<api-key>
+  ```
+  This returns a JSON response listing all available quality profiles and their IDs. The ID can be found at the very bottom of the response.
+- **`approve`** (Optional): Automatically approves requests by default. To disable, set this flag to `False` in the configuration.
   
 ![arrs](https://github.com/user-attachments/assets/a7a60d91-0f24-42a9-bbe1-ea4f1c945e6a)
-![quality_profiles](https://github.com/user-attachments/assets/ba3138ba-736e-4d7d-ac69-ec454656855e)
 
 ### Filters
 
