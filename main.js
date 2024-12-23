@@ -5,6 +5,7 @@ const { loadConfig } = require("./configBuilder")
 
 // Load configuration
 const config = process.env.NODE_ENV !== "test" ? loadConfig() : ""
+const debug = logger.isLevelEnabled("debug")
 const app = express()
 app.use(express.json())
 
@@ -27,7 +28,7 @@ const isObject = (value) => typeof value === "object" && value !== null
 
 const isObjectArray = (value) => Array.isArray(value) && value.some((item) => isObject(item))
 
-const formatLogEntry = (entry) => {
+const formatDebugLogEntry = (entry) => {
     if (Array.isArray(entry)) {
         return entry
             .map((item) => (isObject(item) && item.name ? item.name : isObject(item) ? JSON.stringify(item) : item))
@@ -44,9 +45,9 @@ const formatLogEntry = (entry) => {
     return entry
 }
 
-const buildLogMessage = (message, details = {}) => {
+const buildDebugLogMessage = (message, details = {}) => {
     const formattedDetails = Object.entries(details)
-        .map(([key, value]) => `${key}: ${formatLogEntry(value)}`)
+        .map(([key, value]) => `${key}: ${formatDebugLogEntry(value)}`)
         .join("\n")
 
     return `${message}\n${formattedDetails}`
@@ -99,9 +100,9 @@ const findMatchingInstances = (webhook, data, filters) => {
                     return false
                 }
 
-                if (logger.isLevelEnabled("debug")) {
+                if (debug) {
                     logger.debug(
-                        buildLogMessage("Filter check:", {
+                        buildDebugLogMessage("Filter check:", {
                             Field: key,
                             "Filter value": value,
                             "Request value": requestValue,
@@ -164,11 +165,8 @@ const sendToInstances = async (instances, requestId, data) => {
             postData.serverId = instance.server_id
             if (instance.quality_profile_id) postData.profileId = instance.quality_profile_id
 
-            logger.debug({
-                message: "Sending configuration to instance",
-                instance: item,
-                postData: postData,
-            })
+            if (debug)
+                logger.debug(buildDebugLogMessage("Sending configuration to instance:", { instance: item, postData }))
 
             await applyConfig(requestId, postData)
             logger.info(`Configuration applied for request ID ${requestId} on instance "${item}"`)
@@ -203,6 +201,20 @@ app.post("/webhook", async (req, res) => {
         logger.info(
             `Received request ID ${request.request_id} for ${media.media_type} "${data?.originalTitle || data?.originalName}"`
         )
+        if (debug) {
+            const cleanMetadata = Object.fromEntries(
+                Object.entries(data).filter(
+                    ([key]) => !["credits", "relatedVideos", "networks", "watchProviders"].includes(key)
+                )
+            )
+            logger.debug(
+                buildDebugLogMessage("Request details:", {
+                    webhook: JSON.stringify(req.body, null, 2),
+                    metadata: JSON.stringify(cleanMetadata, null, 2),
+                })
+            )
+        }
+
         const instances = findMatchingInstances(req.body, data, config.filters)
         const postData = getPostData(req.body)
         if (instances) await sendToInstances(instances, request.request_id, postData)
@@ -214,10 +226,10 @@ app.post("/webhook", async (req, res) => {
     }
 })
 
-// Server initialization
 const PORT = process.env.PORT || 8481
 const server = app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)
+    if (debug) logger.debug("Debug logs enabled")
 })
 
 module.exports = { findMatchingInstances, server }
