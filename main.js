@@ -119,7 +119,7 @@ const findMatchingInstances = (webhook, data, filters) => {
         })
 
         if (!matchingFilter) {
-            logger.warn("No matching filter found for the current webhook")
+            logger.info("No matching filter found for the current webhook")
             return null
         }
 
@@ -218,6 +218,11 @@ app.post("/webhook", async (req, res) => {
         const instances = findMatchingInstances(req.body, data, config.filters)
         const postData = getPostData(req.body)
         if (instances) await sendToInstances(instances, request.request_id, postData)
+        else if (config.approve_on_no_match) {
+            logger.info(`Approving unmatched request ID ${request.request_id}`)
+            await approveRequest(request.request_id)
+        }
+
         return res.status(200).send()
     } catch (error) {
         const message = `Error handling webhook: ${error.message}`

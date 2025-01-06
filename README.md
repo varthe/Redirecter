@@ -61,6 +61,8 @@ The configuration for Redirecterr is defined in `config.yaml`. Below is a breakd
 - **`overseerr_url`**: The base URL of your Overseerr instance.
 - **`overseerr_api_token`**: The API token for your Overseerr instance.
 
+### Fallback Settings
+- **`approve_on_no_match`**: When no filters match, the request is approved automatically and handled by Overseerr according to its default settings. (Recommended)
 ### Instances
 
 Define your Radarr and Sonarr instances in this section. You can name the instances as needed.
@@ -95,6 +97,8 @@ Redirecterr processes filters sequentially and will apply the first matching fil
 ```yaml
 overseerr_url: "https://my-overseerr-instance.com"
 overseerr_api_token: "YOUR_API_TOKEN"
+
+approve_on_no_match: True
 
 instances:
   radarr: # Custom instance name

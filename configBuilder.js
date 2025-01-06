@@ -18,6 +18,9 @@ const schema = {
             type: "string",
             minLength: 1,
         },
+        approve_on_no_match: {
+            type: "boolean",
+        },
         instances: {
             type: "object",
             patternProperties: {
