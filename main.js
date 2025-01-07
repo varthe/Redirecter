@@ -90,8 +90,11 @@ const matchValue = (filterValue, dataValue) => {
 
 const findMatchingInstances = (webhook, data, filters) => {
     try {
-        const matchingFilter = filters.find(({ media_type, conditions }) => {
+        const matchingFilter = filters.find(({ media_type, is_not_4k, is_4k, conditions }) => {
             if (media_type !== webhook.media?.media_type) return false
+
+            if (is_not_4k && webhook.media?.status !== "PENDING") return false
+            if (is_4k && webhook.media?.status4k !== "PENDING") return false
 
             for (const [key, value] of Object.entries(conditions || {})) {
                 const requestValue = data[key] || webhook.request?.[key]

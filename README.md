@@ -83,6 +83,8 @@ Define your Radarr and Sonarr instances in this section. You can name the instan
 Define your request filters in this section.
 
 - **`media_type`**: Specifies the type of media, either `"movie"` or `"tv"`.
+- **`is_not_4k`**: Should only apply to non-4k requests
+- **`is_4k`**: Should only apply to 4k requests
 - **`conditions`**: A set of fields and values used to filter requests. Refer to [testData.js](https://github.com/varthe/Redirecterr/blob/main/testData.js) for examples of request objects. Each field within `conditions` can be:
     - A **single value**: Matches if the value is present in the request.
     - A **list of values**: Matches if any value in the list is present in the request.
