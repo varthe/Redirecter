@@ -55,6 +55,12 @@ const schema = {
                         type: "string",
                         enum: ["movie", "tv"],
                     },
+                    is_not_4k: {
+                        type: "boolean",
+                    },
+                    is_4k: {
+                        type: "boolean",
+                    },
                     conditions: {
                         type: "object",
                         additionalProperties: {
