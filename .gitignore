@@ -1,9 +1,19 @@
+# Logs
 logs/
+
+# Dependency directories
 node_modules/
+
+# Secrets and credentials
 secrets/
-eslint.config.mjs
+
+# IDE configurations
 .vscode/
 .idea/
 *.iml
+config/
+
+# Configuration files
+eslint.config.mjs
 .prettierrc
 *.yaml

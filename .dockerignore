@@ -1,20 +1,70 @@
-node_modules
-.github
-config
-logs
-config.yaml
-npm-debug.log
-Dockerfile
-.dockerignore
-.git
+# Dependency directories
+node_modules/
+vendor/
+
+# Version control
+.git/
 .gitignore
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build artifacts
+bin/
+dist/
+tmp/
+*.exe
+*.test
+*.out
+
+# Debugging files
+*.prof
+*.trace
+
+# Secrets and credentials
+.env
+.env.*.local
+secrets/
+
+# Config files
+*.yaml
+*.yml
+*.toml
+*.ini
+*.conf
+
+# Documentation & misc files
 *.md
-example.json
-docker-compose.yaml
-eslint.config.mjs
+*.txt
+LICENSE
+README*
+
+# IDE configurations
 .vscode/
 .idea/
 *.iml
-*.test.js
-testData.js
-.prettierrc
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.sqlite
+*.sqlite-journal
+.cursorrules
+
+# Editor temp files
+*~
+*.swp
+*.swo
+
+# Don't ignore these important files
+!package.json
+!package-lock.json
