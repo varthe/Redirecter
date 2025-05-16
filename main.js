@@ -54,7 +54,7 @@ const buildDebugLogMessage = (message, details = {}) => {
 }
 
 // Main functions
-const matchValue = (filterValue, dataValue) => {
+const matchValue = (filterValue, dataValue, required = false) => {
     const arrayValues = normalizeToArray(filterValue)
 
     if (isObject(dataValue)) {
@@ -63,14 +63,22 @@ const matchValue = (filterValue, dataValue) => {
                 if (
                     value.some((item) =>
                         arrayValues.some((filterVal) =>
-                            Object.values(item).some((field) => String(field).toLowerCase().includes(filterVal))
+                            Object.values(item).some((field) => {
+                                if (required) return String(field).toLowerCase() === filterVal
+                                return String(field).toLowerCase().includes(filterVal)
+                            })
                         )
                     )
                 ) {
                     return true
                 }
             } else {
-                if (arrayValues.some((filterVal) => String(value).toLowerCase().includes(filterVal))) {
+                if (
+                    arrayValues.some((filterVal) => {
+                        if (required) return String(value).toLowerCase() === filterVal
+                        return String(value).toLowerCase().includes(filterVal)
+                    })
+                ) {
                     return true
                 }
             }
@@ -80,7 +88,10 @@ const matchValue = (filterValue, dataValue) => {
     if (isObjectArray(dataValue)) {
         return dataValue.some((item) =>
             arrayValues.some((value) =>
-                Object.values(item).some((field) => String(field).toLowerCase().includes(value))
+                Object.values(item).some((field) => {
+                    if (required) return String(field).toLowerCase() === value
+                    return String(field).toLowerCase().includes(value)
+                })
             )
         )
     }
@@ -113,7 +124,13 @@ const findMatchingInstances = (webhook, data, filters) => {
                     )
                 }
 
-                if (value.exclude ? matchValue(value.exclude, requestValue) : !matchValue(value, requestValue)) {
+                if (value.require && !matchValue(value.require, requestValue, true)) {
+                    logger.debug(`Filter check for required key "${key}" did not match.`)
+                    return false
+                } else if (value.exclude && matchValue(value.exclude, requestValue)) {
+                    logger.debug(`Filter check for excluded key "${key}" did not match.`)
+                    return false
+                } else if (!matchValue(value, requestValue)) {
                     logger.debug(`Filter check for key "${key}" did not match.`)
                     return false
                 }
