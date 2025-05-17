@@ -16,4 +16,5 @@ config/
 # Configuration files
 eslint.config.mjs
 .prettierrc
-*.yaml
+.prettierignore
+config.yaml
