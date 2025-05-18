@@ -81,6 +81,16 @@ const schema = {
                                     required: ["exclude"],
                                     additionalProperties: false,
                                 },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        require: {
+                                            anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+                                        },
+                                    },
+                                    required: ["require"],
+                                    additionalProperties: false,
+                                },
                             ],
                         },
                     },
