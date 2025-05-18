@@ -104,6 +104,9 @@ const findMatchingInstances = (webhook, data, filters) => {
         const matchingFilter = filters.find(({ media_type, is_not_4k, is_4k, conditions }) => {
             if (media_type !== webhook.media?.media_type) return false
 
+            console.log(`is_not_4k: ${is_not_4k}    status: ${webhook.media?.status}`)
+            console.log(`is_4k: ${is_4k}    status: ${webhook.media?.status4k}`)
+
             if (is_not_4k && webhook.media?.status !== "PENDING") return false
             if (is_4k && webhook.media?.status4k !== "PENDING") return false
 

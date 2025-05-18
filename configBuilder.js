@@ -124,6 +124,9 @@ const loadConfig = () => {
         const valid = validate(config)
         if (!valid) throw new Error(`\n${formatErrors(validate.errors)}`)
         logger.info(`Validated config`)
+
+        console.log(JSON.stringify(config, null, 2))
+
         return config
     } catch (error) {
         logger.error(`Error validating config: ${error.message}`)
