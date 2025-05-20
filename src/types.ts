@@ -1,20 +1,20 @@
 export interface Webhook {
-    notificationType: string
+    notification_type: string
     media: Media
     request: Request
 }
 
 interface Media {
-    type: string
+    media_type: string
     tmdbId: string
     status: string
     status4k: string
 }
 
 interface Request {
-    id: string
-    username: string
-    userEmail: string
+    request_id: string
+    requestedBy_username: string
+    requestedBy_email: string
 }
 
 interface ConditionValueObject {

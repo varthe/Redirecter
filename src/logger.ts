@@ -3,7 +3,7 @@ import winston, { Logger } from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
 
 const filePath: string = process.argv[2] || "./logs"
-const logLevel: string = process.env.LOG_LEVEL || "info"
+const logLevel: string = process.env.LOG_LEVEL || "debug"
 const debug = true
 
 const logger: Logger = winston.createLogger({

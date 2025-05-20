@@ -18,6 +18,19 @@ export const fetchFromOverseerr = async (endpoint: string): Promise<any> => {
     return data
 }
 
+export const testConnection = async () => {
+    try {
+        await fetchFromOverseerr("/api/v1/auth/me")
+    } catch (error) {
+        let errorMessage = "An unknown error occurred"
+        if (error instanceof Error) errorMessage = error.message
+        else if (typeof error === "string") errorMessage = error
+
+        logger.error(`Could not reach Overseerr: ${errorMessage}`)
+        process.exit(1)
+    }
+}
+
 export const approveRequest = async (requestId: string) => {
     try {
         const url = new URL(`/api/v1/request/${requestId}/approve`, config.overseerr_url)

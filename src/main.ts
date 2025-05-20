@@ -1,25 +1,32 @@
 import logger from "../logger"
-import { approveRequest, fetchFromOverseerr } from "./api"
+import { approveRequest, fetchFromOverseerr, testConnection } from "./api"
 import { isWebhook } from "./helpers"
 import type { Webhook } from "./types"
 
-const PORT = process.env.PORT || 3184
+await testConnection()
 
+const PORT = process.env.PORT || 8481
 logger.info(`Redirecterr listening on port ${PORT}`)
 
-const handleWebhook = async (webhook: Webhook): Response => {
-    if (webhook.notificationType === "TEST_NOTIFICATION") {
+const handleWebhook = async (webhook: Webhook): Promise<Response> => {
+    if (logger.isDebugEnabled()) {
+        logger.debug(`Received webhook event:\n${JSON.stringify(webhook, null, 2)}`)
+    }
+
+    if (webhook.notification_type === "TEST_NOTIFICATION") {
         return sendResponse("success", "Test notification received", 200)
     }
 
     const { media, request } = webhook
 
-    if (media.type === "music") {
-        await approveRequest(request.id)
+    if (media.media_type === "music") {
+        await approveRequest(request.request_id)
         return sendResponse("success", "Music request approved", 200)
     }
 
-    const data = await fetchFromOverseerr(`/api/v1/${media.type}/${media.tmdbId}`)
+    const data = await fetchFromOverseerr(`/api/v1/${media.media_type}/d`)
+    console.log(JSON.stringify(data, null, 2))
+    return sendResponse("success", "Test", 200)
 }
 
 Bun.serve({

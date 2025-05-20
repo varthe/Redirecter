@@ -143,10 +143,15 @@ const loadConfig = async (): Promise<Config> => {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug(`Loaded config: ${JSON.stringify(config, null, 2)}`)
-        }
+            logger.debug("Debug mode enabled")
 
-        await fetchFromOverseerr("/api/v1/auth/me")
+            const replacer = (key: string, value: any) => {
+                if (key === "overseerr_api_token") return "REDACTED"
+                return value
+            }
+
+            logger.debug(`Loaded config:\n${JSON.stringify(config, replacer, 2)}`)
+        }
 
         return config
     } catch (error: any) {
