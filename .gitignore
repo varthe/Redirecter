@@ -12,7 +12,6 @@ secrets/
 .vscode/
 .idea/
 *.iml
-config/
 
 # Configuration files
 eslint.config.mjs

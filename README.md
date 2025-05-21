@@ -17,7 +17,8 @@ services:
         ports:
             - 8481:8481
         volumes:
-            - /path/to/config:/config
+            - /path/to/config.yaml:/app/config.yaml  # New recommended location
+            # - /path/to/config:/config              # Legacy location (still supported)
             - /path/to/logs:/logs
         environment:
             - LOG_LEVEL=info
@@ -55,7 +56,14 @@ Then, in your seerr navigate to **Settings -> Notifications -> Webhook** and con
 
 ## Configuration Overview
 
-The configuration for Redirecterr is defined in `config.yaml`. Below is a breakdown of the required and optional settings.
+The configuration for Redirecterr is defined in a `config.yaml` file. The application will look for this file in the following locations (in order):
+
+1. Command line argument (if provided)
+2. `/app/config.yaml` (Docker production)
+3. `/config/config.yaml` (Legacy Docker)
+4. `./config.yaml` (Local development)
+
+Below is a breakdown of the required and optional settings.
 
 ### Required Settings
 
