@@ -1,7 +1,8 @@
+import type { stringWidth } from "bun"
 import logger from "../logger"
 import { approveRequest, fetchFromOverseerr, testConnection } from "./api"
 import { isWebhook } from "./helpers"
-import type { Webhook } from "./types"
+import type { Webhook, MediaData, Filter, Condition, ConditionValueObject } from "./types"
 
 await testConnection()
 
@@ -25,7 +26,9 @@ const handleWebhook = async (webhook: Webhook): Promise<Response> => {
     }
 
     const data = await fetchFromOverseerr(`/api/v1/${media.media_type}/d`)
-    console.log(JSON.stringify(data, null, 2))
+    if (logger.isDebugEnabled()) {
+        logger.debug(`Fetched media data:\n${JSON.stringify(data, null, 2)}`)
+    }
     return sendResponse("success", "Test", 200)
 }
 
@@ -64,4 +67,50 @@ const sendResponse = (status: string, message: string, statusCode: number): Resp
         headers: { "Content-Type": "application/json" },
         status: statusCode,
     })
+}
+
+const findInstances = (webhook: Webhook, data: MediaData, filters: Filter[]) => {
+    try {
+        const matchingFilter = filters.find(({ media_type, is_not_4k, is_4k, conditions }) => {
+            if (!conditions) return true
+            if (media_type !== webhook.media.media_type) return false
+
+            if (is_4k && webhook.media.status4k !== "PENDING") return false
+            if (is_not_4k && webhook.media.status !== "PENDING") return false
+
+            for (const [key, value] of Object.entries(conditions)) {
+                const requestValue = data[key] || webhook.request?.[key as keyof typeof webhook.request]
+                if (!requestValue) {
+                    logger.debug(`Filter check skipped - Key "${key}" not found in webhook or data`)
+                    return false
+                }
+
+                if (logger.isDebugEnabled()) {
+                    const json = JSON.stringify({
+                        Field: key,
+                        "Filter value": value,
+                        "Request value": requestValue,
+                    })
+                    logger.debug(`Filter check:\n${json}`)
+                }
+
+                switch (key) {
+                    case "keywords":
+                }
+            }
+        })
+    } catch (error) {}
+}
+
+const matchKeywords = (value: string, keywords: Condition) => {
+    if (typeof keywords === "object" && keywords !== null) {
+        if ("include" in keywords && keywords.include) {
+        }
+
+        if ("require" in keywords && keywords.require) {
+        }
+
+        if ("exclude" in keywords && keywords.exclude) {
+        }
+    }
 }

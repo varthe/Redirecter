@@ -2,6 +2,7 @@ export interface Webhook {
     notification_type: string
     media: Media
     request: Request
+    extra?: Array<any>
 }
 
 interface Media {
@@ -17,18 +18,19 @@ interface Request {
     requestedBy_email: string
 }
 
-interface ConditionValueObject {
+export interface ConditionValueObject {
+    include?: string | string[]
     exclude?: string | string[]
     require?: string | string[]
 }
 
-type Condition = string | string[] | ConditionValueObject
+export type Condition = string | string[] | ConditionValueObject
 
 interface FilterCondition {
     [key: string]: Condition // For dynamic condition keys like "tag", "language" etc.
 }
 
-interface Filter {
+export interface Filter {
     media_type: "movie" | "tv"
     is_not_4k?: boolean
     is_4k?: boolean
@@ -39,7 +41,7 @@ interface Filter {
 interface InstanceConfig {
     server_id: number
     root_folder: string
-    quality_profile_id?: number // Optional based on your schema not explicitly requiring it at this level
+    quality_profile_id?: number
     approve?: boolean
 }
 
@@ -51,4 +53,30 @@ export interface Config {
         [key: string]: InstanceConfig // For dynamic instance names
     }
     filters: Filter[]
+}
+
+export interface PostData {
+    mediaType: string
+    seasons?: number[]
+}
+
+export interface MediaData {
+    originalTitle?: string
+    originalName?: string
+    keywords: Array<Keyword>
+    contentRatings: ContentRatings
+    [key: string]: any
+}
+
+interface Keyword {
+    name: string
+}
+
+interface ContentRating {
+    iso_3116_1: string
+    rating: string
+}
+
+interface ContentRatings {
+    results: ContentRating[]
 }
