@@ -65,6 +65,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Tests
+filters.test.js
+
 # Don't ignore these important files
 !package.json
 !package-lock.json

@@ -1,9 +1,17 @@
-FROM oven/bun:1.1-alpine
+ARG BUN_VERSION=1.2.14
+
+FROM oven/bun:${BUN_VERSION}-alpine AS base
 WORKDIR /app
-COPY package.json bun.lock ./
-RUN bun install --production
+
+COPY package.json bun.lockb* tsconfig.json ./
+
+RUN bun install --production --frozen-lockfile
+
 COPY . .
+
 EXPOSE 8481
-VOLUME ["/config", "/logs"]
-# No need to specify config path as it will be auto-detected
-CMD ["bun", "src/main.ts", "/logs"]
+
+VOLUME /logs
+VOLUME /config
+
+CMD ["bun", "run", "src/main.ts", "/logs", "/config/config.yaml"]
