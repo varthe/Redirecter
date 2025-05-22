@@ -6,7 +6,7 @@ import type { Config } from "../types"
 
 const ajv = new Ajv({ allErrors: true })
 
-const yamlFilePath = process.argv[3] || "../config.yaml"
+const yamlFilePath = process.argv[3] || "./config.yaml"
 
 const schema: Schema = {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -57,9 +57,6 @@ const schema: Schema = {
                         type: "string",
                         enum: ["movie", "tv"],
                     },
-                    is_not_4k: {
-                        type: "boolean",
-                    },
                     is_4k: {
                         type: "boolean",
                     },
@@ -91,6 +88,16 @@ const schema: Schema = {
                                         },
                                     },
                                     required: ["require"],
+                                    additionalProperties: false,
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        include: {
+                                            anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+                                        },
+                                    },
+                                    required: ["include"],
                                     additionalProperties: false,
                                 },
                             ],

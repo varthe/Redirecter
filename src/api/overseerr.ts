@@ -38,7 +38,6 @@ export const testConnection = async (): Promise<void> => {
         else if (typeof error === "string") errorMessage = error
 
         logger.error(`Could not reach Overseerr: ${errorMessage}`)
-        process.exit(1)
     }
 }
 
@@ -53,7 +52,7 @@ export const approveRequest = async (requestId: string): Promise<void> => {
         if (!response.ok) {
             throw new Error(`${response.status} ${response.statusText}`)
         }
-        
+
         logger.info(`Request ID ${requestId} approved successfully`)
     } catch (error) {
         logger.error(`Error approving request: ${error}`)
@@ -75,7 +74,7 @@ export const applyConfig = async (requestId: string, postData: Record<string, an
         if (!response.ok) {
             throw new Error(`${response.status} ${response.statusText}`)
         }
-        
+
         logger.info(`Configuration applied to request ID ${requestId}`)
     } catch (error) {
         logger.error(`Error applying configuration: ${error}`)

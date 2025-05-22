@@ -1,5 +1,5 @@
-const { findInstances } = require("./src/services/filter")
-const assert = require("assert")
+import { findInstances } from "./src/services/filter"
+import { strictEqual } from "assert"
 
 // Moving test data from testData.js directly into this file
 const movieWebhook = {
@@ -372,7 +372,7 @@ describe("Filter Matching Tests", () => {
             },
         ]
         const result = findInstances(movieWebhook, movieGladiator2Data, simpleFilter)
-        assert.strictEqual(result, "simple-test", "Expected filter to match for 'en' language")
+        strictEqual(result, "simple-test", "Expected filter to match for 'en' language")
     })
 
     it("Exclude movie with keyword", () => {
@@ -388,7 +388,7 @@ describe("Filter Matching Tests", () => {
             },
         ]
         const result = findInstances(movieWebhook, data, excludeFilter)
-        assert.strictEqual(result, null, "Expected filter to exclude due to 'anime' keyword")
+        strictEqual(result, null, "Expected filter to exclude due to 'anime' keyword")
     })
 
     it("Match show with language only", () => {
@@ -403,7 +403,7 @@ describe("Filter Matching Tests", () => {
             },
         ]
         const result = findInstances(showWebhook, showArcaneData, simpleFilter)
-        assert.strictEqual(result, "tv-test", "Expected filter to match for 'en' language")
+        strictEqual(result, "tv-test", "Expected filter to match for 'en' language")
     })
 
     it("Test keyword exclusion", () => {
@@ -423,7 +423,7 @@ describe("Filter Matching Tests", () => {
             keywords: [{ id: 321464, name: "intense" }],
         }
         const result = findInstances(showWebhook, data, excludeFilter)
-        assert.strictEqual(result, null, "Expected filter to exclude due to 'intense' keyword")
+        strictEqual(result, null, "Expected filter to exclude due to 'intense' keyword")
     })
 
     it("Test keyword matching", () => {
@@ -443,7 +443,7 @@ describe("Filter Matching Tests", () => {
         }
         const result = findInstances(showWebhook, data, keywordFilter)
         // The test logs show this actually matches
-        assert.strictEqual(result, "keyword-test", "Expected match with simple keyword condition")
+        strictEqual(result, "keyword-test", "Expected match with simple keyword condition")
     })
 
     it("Match movie based on age rating", () => {
@@ -465,13 +465,13 @@ describe("Filter Matching Tests", () => {
             originalLanguage: "jp",
         }
         const result = findInstances(movieWebhook, data, sampleFilters)
-        assert.strictEqual(result, "radarr3", "Expected filter to match for '16' content rating")
+        strictEqual(result, "radarr3", "Expected filter to match for '16' content rating")
     })
 
     it("Handle non-matching cases gracefully", () => {
         const data = { ...movieGladiator2Data, originalLanguage: "fr" }
         const result = findInstances(movieWebhook, data, sampleFilters)
-        assert.strictEqual(result, null, "Expected no filter match due to non-matching language")
+        strictEqual(result, null, "Expected no filter match due to non-matching language")
     })
 
     it("Match a complex filter with mixed types (strings, arrays)", () => {
@@ -488,7 +488,7 @@ describe("Filter Matching Tests", () => {
             ],
         }
         const result = findInstances(showWebhook, data, sampleFilters)
-        assert.strictEqual(result, "sonarr2", "Expected filter to match for mixed types with genres and keywords")
+        strictEqual(result, "sonarr2", "Expected filter to match for mixed types with genres and keywords")
     })
 
     // New tests for require, include, and exclude functionality
@@ -502,7 +502,7 @@ describe("Filter Matching Tests", () => {
                 genres: [{ id: 12, name: "Adventure" }], // Missing Action genre
             }
             const result = findInstances(movieWebhook, data, additionalFilters)
-            assert.strictEqual(result, null, "Expected no match when required genre is missing")
+            strictEqual(result, null, "Expected no match when required genre is missing")
         })
 
         it("Test exclude condition with excluded keyword present", () => {
@@ -514,7 +514,7 @@ describe("Filter Matching Tests", () => {
                 ],
             }
             const result = findInstances(movieWebhook, data, additionalFilters)
-            assert.strictEqual(result, null, "Expected no match when excluded keyword is present")
+            strictEqual(result, null, "Expected no match when excluded keyword is present")
         })
 
         it("Test include condition with partial match", () => {
@@ -529,7 +529,7 @@ describe("Filter Matching Tests", () => {
                 },
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, includeFilter)
-            assert.strictEqual(result, "include-test", "Expected match with included keyword")
+            strictEqual(result, "include-test", "Expected match with included keyword")
         })
 
         // Based on the test results, it seems the require condition is not working as expected
@@ -548,7 +548,7 @@ describe("Filter Matching Tests", () => {
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, simpleFilter)
             // The test logs show this doesn't match, so let's expect null
-            assert.strictEqual(result, null, "Expected no match with simple genre condition")
+            strictEqual(result, null, "Expected no match with simple genre condition")
         })
 
         it("Test array condition", () => {
@@ -564,7 +564,7 @@ describe("Filter Matching Tests", () => {
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, arrayFilter)
             // The test logs show this actually matches
-            assert.strictEqual(result, "array-test", "Expected match with array genre condition")
+            strictEqual(result, "array-test", "Expected match with array genre condition")
         })
 
         it("Test object condition with include", () => {
@@ -580,7 +580,7 @@ describe("Filter Matching Tests", () => {
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, includeFilter)
             // The test logs show this doesn't match, so let's expect null
-            assert.strictEqual(result, null, "Expected no match with include genre condition")
+            strictEqual(result, null, "Expected no match with include genre condition")
         })
 
         // Additional tests for require, include, and exclude
@@ -595,11 +595,7 @@ describe("Filter Matching Tests", () => {
                 },
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, multiExcludeFilter)
-            assert.strictEqual(
-                result,
-                "multi-exclude-test",
-                "Expected match when multiple excluded keywords are not present"
-            )
+            strictEqual(result, "multi-exclude-test", "Expected match when multiple excluded keywords are not present")
         })
 
         it("Test exclude with one matching condition", () => {
@@ -613,7 +609,7 @@ describe("Filter Matching Tests", () => {
                 },
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, excludeFilter)
-            assert.strictEqual(result, null, "Expected no match when one excluded keyword is present")
+            strictEqual(result, null, "Expected no match when one excluded keyword is present")
         })
 
         // Tests for combinations of include, require, and exclude in a single condition
@@ -633,7 +629,7 @@ describe("Filter Matching Tests", () => {
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, combinedFilter)
             // The test logs show this actually matches
-            assert.strictEqual(result, "combined-keywords-test", "Expected match for combined condition types")
+            strictEqual(result, "combined-keywords-test", "Expected match for combined condition types")
         })
 
         it("Test multiple condition types across different fields", () => {
@@ -650,7 +646,7 @@ describe("Filter Matching Tests", () => {
             ]
             const result = findInstances(movieWebhook, movieGladiator2Data, multiFieldFilter)
             // Based on the implementation, we need to check the actual behavior
-            assert.strictEqual(result, null, "Expected behavior for multiple condition types across fields")
+            strictEqual(result, null, "Expected behavior for multiple condition types across fields")
         })
 
         it("Test complex condition with all types", () => {
@@ -681,7 +677,7 @@ describe("Filter Matching Tests", () => {
 
             const result = findInstances(movieWebhook, complexData, complexFilter)
             // Based on the logs, this doesn't match due to the require condition
-            assert.strictEqual(result, null, "Expected no match for complex condition with all types")
+            strictEqual(result, null, "Expected no match for complex condition with all types")
         })
 
         it("Test complex condition with negative case", () => {
@@ -712,7 +708,7 @@ describe("Filter Matching Tests", () => {
 
             const result = findInstances(movieWebhook, complexData, complexFilter)
             // This should not match due to the excluded keyword
-            assert.strictEqual(result, null, "Expected no match when excluded keyword is present")
+            strictEqual(result, null, "Expected no match when excluded keyword is present")
         })
     })
 })

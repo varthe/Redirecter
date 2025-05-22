@@ -12,7 +12,6 @@ interface FilterCondition {
 
 export interface Filter {
     media_type: "movie" | "tv"
-    is_not_4k?: boolean
     is_4k?: boolean
     conditions?: FilterCondition
     apply: string | string[]

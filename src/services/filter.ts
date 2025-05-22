@@ -207,11 +207,11 @@ export const matchContentRatings = (contentRatings: ContentRatings, filterCondit
  */
 export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter[]): string | string[] | null => {
     try {
-        const matchingFilter = filters.find(({ media_type, is_not_4k, is_4k, conditions }) => {
+        const matchingFilter = filters.find(({ media_type, is_4k, conditions }) => {
             // Quick checks first
             if (media_type !== webhook.media.media_type) return false
-            if (is_not_4k && webhook.media.status !== "PENDING") return false
-            if (is_4k && webhook.media.status4k !== "PENDING") return false
+            if (is_4k === false && webhook.media.status !== "PENDING") return false
+            if (is_4k === true && webhook.media.status4k !== "PENDING") return false
 
             // If no conditions, it's a match
             if (!conditions || Object.keys(conditions).length === 0) return true
