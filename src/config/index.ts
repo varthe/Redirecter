@@ -65,6 +65,7 @@ const schema: Schema = {
                         additionalProperties: {
                             anyOf: [
                                 { type: "string" },
+                                { type: "number" },
                                 {
                                     type: "array",
                                     items: { type: "string" },

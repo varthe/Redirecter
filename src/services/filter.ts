@@ -217,7 +217,7 @@ export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter
             if (!conditions || Object.keys(conditions).length === 0) return true
 
             // Prioritize checking keywords and content ratings first
-            const priorityKeys = ["keywords", "contentRatings"]
+            const priorityKeys = ["keywords", "contentRatings", "max_seasons"]
 
             // First check priority keys if they exist in conditions
             for (const priorityKey of priorityKeys) {
@@ -265,6 +265,14 @@ export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter
                                     "Request value": "Content ratings array (matched)",
                                 })
                             )
+                        }
+                    } else if (priorityKey === "max_seasons" && webhook.extra) {
+                        const requestedSeasons = webhook.extra
+                            .find((item: any) => item.name === "Requested Seasons")
+                            ?.value?.split(",")
+
+                        if (requestedSeasons && value && requestedSeasons.length > value) {
+                            return false
                         }
                     }
                 }
