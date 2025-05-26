@@ -2,12 +2,10 @@ import { config } from "../config"
 import logger from "../utils/logger"
 
 // Create headers for Overseerr API requests
-const createHeaders = (): Headers => {
-    const headers = new Headers()
-    headers.append("X-Api-Key", config.overseerr_api_token)
-    headers.append("accept", "application/json")
-    headers.append("Content-Type", "application/json")
-    return headers
+const headers = {
+    "X-Api-Key": config.overseerr_api_token,
+    accept: "application/json",
+    "Content-Type": "application/json",
 }
 
 /**
@@ -15,7 +13,7 @@ const createHeaders = (): Headers => {
  */
 export const fetchFromOverseerr = async (endpoint: string): Promise<any> => {
     const url = new URL(endpoint, config.overseerr_url)
-    const response = await fetch(url, { headers: createHeaders() })
+    const response = await fetch(url, { headers: headers })
 
     if (!response.ok || response.status !== 200) {
         throw new Error(`could not retrieve data from Overseerr: ${response.status} ${response.statusText}`)
@@ -26,28 +24,12 @@ export const fetchFromOverseerr = async (endpoint: string): Promise<any> => {
 }
 
 /**
- * Test connection to Overseerr API
- */
-export const testConnection = async (): Promise<void> => {
-    try {
-        await fetchFromOverseerr("/api/v1/auth/me")
-        logger.info("Successfully connected to Overseerr API")
-    } catch (error) {
-        let errorMessage = "An unknown error occurred"
-        if (error instanceof Error) errorMessage = error.message
-        else if (typeof error === "string") errorMessage = error
-
-        logger.error(`Could not reach Overseerr: ${errorMessage}`)
-    }
-}
-
-/**
  * Approve a request in Overseerr
  */
 export const approveRequest = async (requestId: string): Promise<void> => {
     try {
         const url = new URL(`/api/v1/request/${requestId}/approve`, config.overseerr_url)
-        const response = await fetch(url, { method: "POST", headers: createHeaders() })
+        const response = await fetch(url, { method: "POST", headers: headers })
 
         if (!response.ok) {
             throw new Error(`${response.status} ${response.statusText}`)
@@ -67,7 +49,7 @@ export const applyConfig = async (requestId: string, postData: Record<string, an
         const url = new URL(`/api/v1/request/${requestId}`, config.overseerr_url)
         const response = await fetch(url, {
             method: "PUT",
-            headers: createHeaders(),
+            headers: headers,
             body: JSON.stringify(postData),
         })
 

@@ -208,18 +208,15 @@ export const matchContentRatings = (contentRatings: ContentRatings, filterCondit
 export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter[]): string | string[] | null => {
     try {
         const matchingFilter = filters.find(({ media_type, is_4k, conditions }) => {
-            // Quick checks first
             if (media_type !== webhook.media.media_type) return false
             if (is_4k === false && webhook.media.status !== "PENDING") return false
             if (is_4k === true && webhook.media.status4k !== "PENDING") return false
 
-            // If no conditions, it's a match
             if (!conditions || Object.keys(conditions).length === 0) return true
 
-            // Prioritize checking keywords and content ratings first
+            // Prioritize certain keys for better performance
             const priorityKeys = ["keywords", "contentRatings", "max_seasons"]
 
-            // First check priority keys if they exist in conditions
             for (const priorityKey of priorityKeys) {
                 if (priorityKey in conditions) {
                     const value = conditions[priorityKey]
@@ -230,7 +227,6 @@ export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter
                             return false
                         }
 
-                        // Type assertion to ensure value is treated as Condition
                         if (!matchKeywords(data.keywords, value as Condition)) {
                             logger.debug(`Filter check for keywords did not match.`)
                             return false
@@ -278,11 +274,7 @@ export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter
                 }
             }
 
-            // Then check all other conditions
             for (const [key, value] of Object.entries(conditions)) {
-                // Skip priority keys as they've already been checked
-                if (priorityKeys.includes(key)) continue
-
                 const requestValue = data[key] || webhook.request?.[key as keyof typeof webhook.request]
                 if (!requestValue) {
                     logger.debug(`Filter check skipped - Key "${key}" not found in webhook or data`)
