@@ -6,6 +6,7 @@ Example values for each field can be found in [filters.test.js](https://github.c
 
 - `requestedBy_email`
 - `requestedBy_username`
+- `max_seasons`
 
 <br />
 

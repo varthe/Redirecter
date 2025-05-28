@@ -91,6 +91,7 @@ filters:
           contentRatings:
               exclude: [12, 16]
           requestedBy_username: user
+          max_seasons: 2
       apply: radarr_anime
 ```
 
