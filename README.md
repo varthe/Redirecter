@@ -132,7 +132,7 @@ filters:
     - media_type: tv
       conditions:
           keywords: anime
-      apply: radarr_anime
+      apply: sonarr_anime
 
     # Send everything else to sonarr and sonarr_4k instances
     - media_type: tv
