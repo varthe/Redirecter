@@ -275,6 +275,11 @@ export const findInstances = (webhook: Webhook, data: MediaData, filters: Filter
             }
 
             for (const [key, value] of Object.entries(conditions)) {
+                // Skip priority keys that were already processed
+                if (priorityKeys.includes(key)) {
+                    continue
+                }
+
                 const requestValue = data[key] || webhook.request?.[key as keyof typeof webhook.request]
                 if (!requestValue) {
                     logger.debug(`Filter check skipped - Key "${key}" not found in webhook or data`)
