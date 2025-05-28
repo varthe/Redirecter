@@ -5,6 +5,7 @@ vendor/
 # Version control
 .git/
 .gitignore
+.github/
 
 # Logs
 logs/
@@ -27,6 +28,7 @@ tmp/
 # Debugging files
 *.prof
 *.trace
+test/
 
 # Secrets and credentials
 .env
