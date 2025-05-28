@@ -45,6 +45,7 @@ In Overseerr go to **Settings -> Notifications -> Webhook** and configure the fo
         "{{extra}}": []
     }
     ```
+
 ## Config
 Create a `config.yaml` file with the following sections:
 
@@ -79,7 +80,6 @@ instances:
 ### Filters
 
 Filters route requests based on conditions.
-
 
 ```yaml
 filters:
