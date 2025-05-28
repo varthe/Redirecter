@@ -1,11 +1,11 @@
-const path = require("path")
-const winston = require("winston")
-const DailyRotateFile = require("winston-daily-rotate-file")
+import path from "path"
+import winston, { Logger } from "winston"
+import DailyRotateFile from "winston-daily-rotate-file"
 
-const filePath = process.argv[2] || "./logs"
-const logLevel = process.env.LOG_LEVEL || "info"
+const filePath: string = process.argv[2] || "../logs"
+const logLevel: string = process.env.LOG_LEVEL || "info"
 
-const logger = winston.createLogger({
+const logger: Logger = winston.createLogger({
     level: logLevel,
     format: winston.format.combine(
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -24,4 +24,4 @@ const logger = winston.createLogger({
     ],
 })
 
-module.exports = logger
+export default logger

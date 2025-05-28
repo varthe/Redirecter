@@ -1,12 +1,14 @@
-const fs = require("fs")
-const yaml = require("js-yaml")
-const Ajv = require("ajv")
-const ajv = new Ajv()
-const logger = require("./logger")
+import fs from "fs"
+import yaml from "js-yaml"
+import Ajv, { type ErrorObject, type Schema } from "ajv"
+import logger from "../utils/logger"
+import type { Config } from "../types"
+
+const ajv = new Ajv({ allErrors: true })
 
 const yamlFilePath = process.argv[3] || "./config.yaml"
 
-const schema = {
+const schema: Schema = {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     properties: {
@@ -55,9 +57,6 @@ const schema = {
                         type: "string",
                         enum: ["movie", "tv"],
                     },
-                    is_not_4k: {
-                        type: "boolean",
-                    },
                     is_4k: {
                         type: "boolean",
                     },
@@ -66,6 +65,7 @@ const schema = {
                         additionalProperties: {
                             anyOf: [
                                 { type: "string" },
+                                { type: "number" },
                                 {
                                     type: "array",
                                     items: { type: "string" },
@@ -91,6 +91,16 @@ const schema = {
                                     required: ["require"],
                                     additionalProperties: false,
                                 },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        include: {
+                                            anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+                                        },
+                                    },
+                                    required: ["include"],
+                                    additionalProperties: false,
+                                },
                             ],
                         },
                     },
@@ -112,23 +122,59 @@ const schema = {
     required: ["overseerr_url", "overseerr_api_token", "instances", "filters"],
 }
 
-const formatErrors = (errors) => {
-    return errors.map((error) => `"${error.instancePath}": ${error.message || "Validation error"}`).join("\n")
+/**
+ * Format validation errors into a readable string
+ */
+const formatErrors = (errors: ErrorObject[] | null | undefined): string => {
+    if (!errors) return "Unknown validation error"
+
+    return errors
+        .map((error) => {
+            const path = error.instancePath || "config"
+            return `Error at "${path}": ${error.message || "Validation issue"}`
+        })
+        .join("\n")
 }
 
-const loadConfig = () => {
+const validate = ajv.compile<Config>(schema)
+
+/**
+ * Load and validate the configuration file
+ */
+const loadConfig = async (): Promise<Config> => {
     try {
+        if (!fs.existsSync(yamlFilePath)) {
+            logger.error(`Configuration file not found at: ${yamlFilePath}`)
+            process.exit(1)
+        }
+
         const fileContents = fs.readFileSync(yamlFilePath, "utf8")
         const config = yaml.load(fileContents)
-        const validate = ajv.compile(schema)
-        const valid = validate(config)
-        if (!valid) throw new Error(`\n${formatErrors(validate.errors)}`)
-        logger.info(`Validated config`)
+
+        if (!validate(config)) {
+            throw new Error(`\n${formatErrors(validate.errors)}`)
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Debug mode enabled")
+
+            const replacer = (key: string, value: any) => {
+                if (key === "overseerr_api_token") return "REDACTED"
+                return value
+            }
+
+            logger.debug(`Loaded config:\n${JSON.stringify(config, replacer, 2)}`)
+        }
+
         return config
-    } catch (error) {
-        logger.error(`Error validating config: ${error.message}`)
+    } catch (error: any) {
+        let errorMessage = "An unknown error occurred"
+        if (error instanceof Error) errorMessage = error.message
+        else if (typeof error === "string") errorMessage = error
+
+        logger.error(`Error loading config: ${errorMessage}`)
         process.exit(1)
     }
 }
 
-module.exports = { loadConfig }
+export const config = await loadConfig()

@@ -1,5 +1,6 @@
 # Logs
 logs/
+test/
 
 # Dependency directories
 node_modules/
@@ -11,7 +12,6 @@ secrets/
 .vscode/
 .idea/
 *.iml
-config/
 
 # Configuration files
 eslint.config.mjs

@@ -5,6 +5,7 @@ vendor/
 # Version control
 .git/
 .gitignore
+.github/
 
 # Logs
 logs/
@@ -27,7 +28,7 @@ tmp/
 # Debugging files
 *.prof
 *.trace
-
+#
 # Secrets and credentials
 .env
 .env.*.local
@@ -64,6 +65,11 @@ Thumbs.db
 *~
 *.swp
 *.swo
+
+# Tests
+filters.test.js
+test/
+
 
 # Don't ignore these important files
 !package.json

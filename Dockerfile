@@ -1,8 +1,17 @@
-FROM node:20-alpine
+ARG BUN_VERSION=1.2.14
+
+FROM oven/bun:${BUN_VERSION}-alpine AS base
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+
+COPY package.json bun.lockb* tsconfig.json ./
+
+RUN bun install --production --frozen-lockfile
+
 COPY . .
+
 EXPOSE 8481
-VOLUME ["/config", "/logs"]
-CMD ["node", "main.js", "/logs", "/config/config.yaml"]
+
+VOLUME /logs
+VOLUME /config
+
+CMD ["bun", "run", "src/main.ts", "/logs", "/config/config.yaml"]
