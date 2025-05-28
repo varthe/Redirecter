@@ -2,12 +2,7 @@
 
 Filter and redirect Overseerr/Jellyseerr requests based on requester, keywords, age ratings, and more. Supports routing to multiple instances simultaneously.
 
-## Getting Started
-
-### Docker Compose
-
-Use the following `docker-compose.yaml` to deploy the Redirecterr service:
-
+## Docker Compose
 ```yaml
 services:
     redirecterr:
@@ -17,21 +12,21 @@ services:
         ports:
             - 8481:8481
         volumes:
-            - /path/to/config.yaml:/app/config.yaml  # New recommended location
-            # - /path/to/config:/config              # Legacy location (still supported)
+            - /path/to/config.yaml:/app/config.yaml
             - /path/to/logs:/logs
         environment:
             - LOG_LEVEL=info
 ```
 
-### Webhook setup
+## Webhook setup
+> [!IMPORTANT]  
+> Disable automatic request approval for your users
 
-In order for Redirecterr to work you need to disable automatic request approval for your users.
-
-Then, in your seerr navigate to **Settings -> Notifications -> Webhook** and configure the following:
+In Overseerr go to **Settings -> Notifications -> Webhook** and configure the following:
 
 -   **Enable Agent**: Enabled
 -   **Webhook URL**: `http://redirecterr:8481/webhook`
+-   **Notification Types**: Select **Request Pending Approval**
 -   **JSON Payload**:
     ```json
     {
@@ -39,7 +34,6 @@ Then, in your seerr navigate to **Settings -> Notifications -> Webhook** and con
         "media": {
             "media_type": "{{media_type}}",
             "tmdbId": "{{media_tmdbid}}",
-            "tvdbId": "{{media_tvdbid}}",
             "status": "{{media_status}}",
             "status4k": "{{media_status4k}}"
         },
@@ -47,113 +41,99 @@ Then, in your seerr navigate to **Settings -> Notifications -> Webhook** and con
             "request_id": "{{request_id}}",
             "requestedBy_email": "{{requestedBy_email}}",
             "requestedBy_username": "{{requestedBy_username}}",
-            "requestedBy_avatar": "{{requestedBy_avatar}}"
         },
         "{{extra}}": []
     }
     ```
--   **Notification Types**: Select **Request Pending Approval**
+## Config
+Create a `config.yaml` file with the following sections:
 
-## Configuration Overview
-
-The configuration for Redirecterr is defined in a `config.yaml` file. The application will look for this file in the following locations (in order):
-
-1. Command line argument (if provided)
-2. `/app/config.yaml` (Docker production)
-3. `/config/config.yaml` (Legacy Docker)
-4. `./config.yaml` (Local development)
-
-Below is a breakdown of the required and optional settings.
-
-### Required Settings
-
--   **`overseerr_url`**: The base URL of your Overseerr instance.
--   **`overseerr_api_token`**: The API token for your Overseerr instance.
-
-### Fallback Settings
-
--   **`approve_on_no_match`**: When no filters match, the request is approved automatically and handled by Overseerr according to its default settings. (Recommended)
+### Overseerr settings
+```yaml
+overseerr_url: ""
+overseerr_api_token: ""
+approve_on_no_match: true  # Auto-approve if no filters match
+```
 
 ### Instances
+Define your Radarr/Sonarr instances
 
-Define your Radarr and Sonarr instances in this section. You can name the instances as needed.
+```yaml
+instances:
+  radarr:                    
+    server_id: 0             # Match the order in Overseerr > Settings > Services (example below)
+    root_folder: /mnt/movies
+    # quality_profile_id: 1  # Optional
+    # approve: false         # Optional (default is true)
+```
 
--   **`server_id`** (Required): The ID of the instance as shown in **Settings -> Services** in Overseerr. IDs start at 0 and increment sequentially from left to right (see image below).
--   **`root_folder`** (Required): The path to the root folder for the instance, as configured in its settings.
--   **`quality_profile_id`** (Optional): Overrides the default quality profile set in Overseerr. If not provided, the default profile will be used. To find the profile ID, open your browser and use the following URL, replacing `<url>` with your arr instance's URL and `<api-key>` with its API key:
-    ```
-    http://<url>/api/v3/qualityProfile?apiKey=<api-key>
-    ```
-    This returns a JSON response listing all available quality profiles and their IDs. The ID can be found at the very bottom of the response.
--   **`approve`** (Optional): Automatically approves requests by default. To disable, set this flag to `False` in the configuration.
+- `server_id`: Starts at 0, increases left to right in Overseerr UI. [Visual example](https://github.com/user-attachments/assets/a7a60d91-0f24-42a9-bbe1-ea4f1c945e6a)
+- `quality_profile_id` (Optional): Override Overseerr default. Get IDs from:
 
-![arrs](https://github.com/user-attachments/assets/a7a60d91-0f24-42a9-bbe1-ea4f1c945e6a)
+  ```
+  http://<arr-url>/api/v3/qualityProfile?apiKey=<api-key>
+  ```
+- `approve`: Set to false to disable auto-approval.
+
 
 ### Filters
 
-Define your request filters in this section.
+Filters route requests based on conditions.
 
--   **`media_type`**: Specifies the type of media, either `"movie"` or `"tv"`.
--   **`is_not_4k`**: Should only apply to non-4k requests
--   **`is_4k`**: Should only apply to 4k requests
--   **`conditions`**: A set of fields and values used to filter requests. Refer to [testData.js](https://github.com/varthe/Redirecterr/blob/main/testData.js) for examples of request objects. Each field within `conditions` can be:
-
-    -   A **single value**: Matches if the value is present in the request.
-    -   A **list of values**: Matches if any value in the list is present in the request.
-    -   A **`require`** object: Used to require specific values. The `require` object can contain either a single value or a list of values. The filter will match if all specified values are present in the request.
-    -   An **`exclude`** object: Used to exclude specific values. The `exclude` object can contain either a single value or a list of values. The filter will match if none of the specified values are present in the request.
-
--   **`apply`**: A list of instance names (defined in the **Instances** section) to which the request will be sent.
-
-Redirecterr processes filters sequentially and will apply the first matching filter it encounters. Make sure to order your filters appropriately to get the desired behavior.
-
-### Sample `config.yaml`
 
 ```yaml
-overseerr_url: "https://my-overseerr-instance.com"
-overseerr_api_token: "YOUR_API_TOKEN"
-
-approve_on_no_match: True
-
-instances:
-    radarr: # Custom instance name
-        server_id: 0
-        root_folder: "/mnt/plex/Movies"
-    radarr4k: # Custom instance name
-        server_id: 1
-        root_folder: "/mnt/plex/Movies - 4K"
-    radarr_anime: # Custom instance name
-        server_id: 2
-        root_folder: "/mnt/plex/Movies - Anime"
-        quality_profile_id: 2 # Optional
-        approve: false # Optional
-    sonarr: # Custom instance name
-        server_id: 0
-        root_folder: "/mnt/plex/Shows"
-
 filters:
     - media_type: movie
+      # is_4k: true  # Optional
       conditions:
-          keywords: anime # Match if keyword "anime" is present
-          requestedBy_username: varthe # Match if requested by "varthe"
-          # requestedBy_email: ""
-      apply: radarr_anime # Send request to "radarr_anime"
-    - media_type: movie
-      conditions:
-          keywords: # Exclude requests with keywords "anime" or "animation"
-              exclude:
-                  - anime
-                  - animation
-      apply: # Send requests to "radarr" and "radarr4k"
-          - radarr
-          - radarr4k
+          keywords:
+              include: ["anime", "animation"]
+          contentRatings:
+              exclude: [12, 16]
+          requestedBy_username: user
+      apply: radarr_anime
+```
+
+#### Fields
+
+-   `media_type`: `movie` or `tv`
+-   `is_4k` (Optional): Set to `true` to only match 4K requests. Set to `false` to only match non-4k requests. Leave empty to match both.
+-   `conditions`:
+    - `field`:
+        -   `require`: All values must match
+        -   `exclude`: None of the values must match
+        -   `include`: At least one value matches
+-   `apply`: One or more instance names
+
+> [!TIP]  
+> For a list of possible condition fields see [fields.md](https://github.com/varthe/Redirecterr/blob/main/fields.md)
+
+### Sample config
+```yaml
+overseerr_url: ""
+overseerr_api_token: ""
+
+approve_on_no_match: true
+
+instances:
+    sonarr:
+        server_id: 0
+        root_folder: "/mnt/plex/Shows"
+    sonarr_4k:
+        server_id: 1
+        root_folder: "/mnt/plex/Shows - 4K"
+    sonarr_anime:
+        server_id: 2
+        root_folder: "/mnt/plex/Anime"
+
+filters:
+    # Send anime to sonarr_anime
     - media_type: tv
       conditions:
-          genres: # Match if genre is "adventure" or "comedy"
-              - adventure
-              - comedy
-          contentRatings: # Match if content rating is "12" or "16"
-              - 12
-              - 16
-      apply: sonarr # Send request to "sonarr"
+          keywords: anime
+      apply: radarr_anime
+
+    # Send everything else to sonarr and sonarr_4k instances
+    - media_type: tv
+      apply: ["sonarr", "sonarr_4k"]
 ```

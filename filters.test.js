@@ -1,7 +1,6 @@
 import { findInstances } from "./src/services/filter"
 import { strictEqual } from "assert"
 
-// Moving test data from testData.js directly into this file
 const movieWebhook = {
     notification_type: "MEDIA_AUTO_APPROVED",
     media: {
