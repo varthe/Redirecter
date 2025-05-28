@@ -35,3 +35,4 @@ Example values for each field can be found in [filters.test.js](https://github.c
 - `inProduction`
 - `numberOfSeasons` / `numberOfEpisodes`
 - `contentRatings`
+
