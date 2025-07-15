@@ -1,6 +1,4 @@
-# Redirecterr
-
-Filter and redirect Overseerr/Jellyseerr requests based on requester, keywords, age ratings, and more. Supports routing to multiple instances simultaneously.
+# Redirecter
 
 ## Docker Compose
 ```yaml
