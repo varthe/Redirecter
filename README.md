@@ -38,7 +38,7 @@ In Overseerr go to **Settings -> Notifications -> Webhook** and configure the fo
         "request": {
             "request_id": "{{request_id}}",
             "requestedBy_email": "{{requestedBy_email}}",
-            "requestedBy_username": "{{requestedBy_username}}",
+            "requestedBy_username": "{{requestedBy_username}}"
         },
         "{{extra}}": []
     }
