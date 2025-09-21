@@ -8,69 +8,42 @@ import type { Webhook, MediaData, Filter, Condition, Keyword, ContentRatings } f
  * - required=false: substring match against any extracted string
  */
 export const matchValue = (filterValue: any, dataValue: any, required = false): boolean => {
-	const filterValues = new Set(normalizeToArray(filterValue))
+	const requiredSet = required ? new Set(normalizeToArray(filterValue)) : null
+	const anySet = required ? null : new Set(normalizeToArray(filterValue))
 
-	const check = (s: string): boolean => {
-		if (required) return filterValues.has(s)
-		for (const f of filterValues) if (s.includes(f)) return true
-		return false
-	}
+	let anyMatched = false
 
-	// Object: scan values (including nested objects, arrays of objects, and arrays of primitives)
-	if (isObject(dataValue)) {
-		const allValues: string[] = []
+	const visit = (val: unknown): void => {
+		if (anyMatched && !required) return
 
-		for (const value of Object.values(dataValue)) {
-			if (isObject(value)) {
-				const values = Object.values(value as Record<PropertyKey, unknown>).map((x) => String(x).toLowerCase())
-				for (const v of values) if (check(v)) return true
-				allValues.push(...values)
-			} else if (isObjectArray(value)) {
-				for (const item of value as any[]) {
-					for (const field of Object.values(item)) {
-						const s = String(field).toLowerCase()
-						if (check(s)) return true
-						allValues.push(s)
-					}
+		if (isObject(val)) {
+			for (const v of Object.values(val as Record<PropertyKey, unknown>)) visit(v)
+			return
+		}
+
+		if (Array.isArray(val)) {
+			for (const el of val) visit(el)
+			return
+		}
+
+		const s = String(val).toLowerCase()
+
+		if (required) {
+			if (requiredSet!.has(s)) requiredSet!.delete(s)
+		} else {
+			// substring "include" semantics
+			for (const f of anySet!) {
+				if (s.includes(f)) {
+					anyMatched = true
+					break
 				}
-			} else if (Array.isArray(value)) {
-				for (const el of value) {
-					const s = String(el).toLowerCase()
-					if (check(s)) return true
-					allValues.push(s)
-				}
-			} else {
-				const s = String(value).toLowerCase()
-				if (check(s)) return true
-				allValues.push(s)
 			}
 		}
-
-		return allValues.some(check)
 	}
 
-	// Array of objects
-	if (isObjectArray(dataValue)) {
-		for (const item of dataValue as any[]) {
-			for (const field of Object.values(item)) {
-				const s = String(field).toLowerCase()
-				if (check(s)) return true
-			}
-		}
-		return false
-	}
+	visit(dataValue)
 
-	// Array of primitives
-	if (Array.isArray(dataValue)) {
-		for (const el of dataValue) {
-			const s = String(el).toLowerCase()
-			if (check(s)) return true
-		}
-		return false
-	}
-
-	// Primitive
-	return check(String(dataValue).toLowerCase())
+	return required ? requiredSet!.size === 0 : anyMatched
 }
 
 /**
