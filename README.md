@@ -11,7 +11,7 @@ services:
     ports:
       - 8481:8481
     volumes:
-      - /path/to/config.yaml:/app/config.yaml
+      - /path/to/config.yaml:/config/config.yaml
       - /path/to/logs:/logs
     environment:
       - LOG_LEVEL=info
